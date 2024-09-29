@@ -8,17 +8,28 @@ import { USER_ROLE } from '../User/user.utils';
 import { TLoginUser } from './auth.interface';
 import { createToken, verifyToken } from './auth.utils';
 import { demoProfileUrl } from '../../contants';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { sendEmail } from '../../utils/sendEmail';
+
 
 const loginUser = async (payload: TLoginUser) => {
   // checking if the user is exist
   const user = await User.findOne({ email: payload.email });
 
   if (!user) {
-    const user = await createUser(payload);
+
+    const userData = {
+      ...payload,
+      profilePhoto: payload.profilePhoto || demoProfileUrl
+    }
+    const user = await createUser(userData);
 
     const jwtPayload = {
+      userId: user._id,
+      username: user.username,
       email: user.email,
       role: user.role,
+      profilePhoto: user.profilePhoto
     };
 
     const accessToken = createToken(
@@ -49,12 +60,13 @@ const loginUser = async (payload: TLoginUser) => {
       }
     }
 
+
     const jwtPayload = {
-      name: user.name,
+      userId: user._id,
+      username: user.username,
       email: user.email,
       role: user.role,
-      _id: user._id,
-      profilePhoto: user.img || demoProfileUrl,
+      profilePhoto: user.profilePhoto
     };
 
     const accessToken = createToken(
@@ -91,8 +103,11 @@ const refreshToken = async (token: string) => {
   }
 
   const jwtPayload = {
+    userId: user._id,
+    username: user.username,
     email: user.email,
     role: user.role,
+    profilePhoto: user.profilePhoto
   };
 
   const accessToken = createToken(
@@ -125,15 +140,18 @@ const registerUser = async (userData: TLoginUser) => {
 
     const createdUser = await User.create({
       ...userData,
+      profilePhoto: userData.profilePhoto || demoProfileUrl,
       role: USER_ROLE.user,
     });
 
     if (createdUser?._id) {
+
       const jwtPayload = {
-        name: createdUser.name,
+        userId: createdUser._id,
+        username: createdUser.username,
         email: createdUser.email,
         role: createdUser.role,
-        profilePhoto: userData.img || demoProfileUrl,
+        profilePhoto: createdUser.profilePhoto
       };
 
       const accessToken = createToken(
@@ -169,8 +187,104 @@ const createUser = async (userData: TLoginUser) => {
 
   return user;
 };
+
+
+
+
+const forgetPassword = async (userId: string) => {
+  // checking if the user is exist
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
+  }
+
+ 
+
+  // checking if the user is blocked
+  const userStatus = user?.status;
+
+  if (userStatus === 'BLOCKED') {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
+  }
+
+  
+  const jwtPayload = {
+    userId: user._id,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+    profilePhoto: user.profilePhoto
+  };
+
+  const resetToken = createToken(jwtPayload,config.jwt_access_secret as string,'10m');
+
+  const resetUILink = `${config.reset_pass_ui_link}?id=${user._id}&token=${resetToken} `;
+
+  sendEmail(user.email, resetUILink);
+
+  console.log(resetUILink);
+};
+
+
+
+
+const resetPassword = async (
+  payload: { userId: string; newPassword: string },
+  token: string,
+) => {
+  // checking if the user is exist
+  const user = await User?.findById(payload?.userId);
+
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, 'This user is not found !');
+  }
+  // checking if the user is already deleted
+  
+  // checking if the user is blocked
+  const userStatus = user?.status;
+
+  if (userStatus === 'BLOCKED') {
+    throw new AppError(httpStatus.FORBIDDEN, 'This user is blocked ! !');
+  }
+
+  const decoded = jwt.verify(
+    token,
+    config.jwt_access_secret as string,
+  ) as JwtPayload;
+
+
+  if (payload.userId !== decoded.userId) {
+    console.log(payload.userId, decoded.userId);
+    throw new AppError(httpStatus.FORBIDDEN, 'You are forbidden!');
+  }
+
+  //hash new password
+  const newHashedPassword = await bcryptJs.hash(
+    payload.newPassword,
+    Number(config.bcrypt_salt_rounds),
+  );
+
+  await User.findOneAndUpdate(
+    {
+      _id: decoded.userId,
+      role: decoded.role,
+    },
+    {
+      password: newHashedPassword,
+      passwordChangedAt: new Date(),
+    },
+  );
+};
+
+
+
+
 export const AuthServices = {
   loginUser,
   refreshToken,
   registerUser,
+  resetPassword,
+  forgetPassword
 };

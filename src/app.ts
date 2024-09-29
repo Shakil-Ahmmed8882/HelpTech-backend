@@ -20,7 +20,7 @@ app.use('/api/v1', router);
 
 app.get('/', (req, res) => {
   res.status(200).json({
-    message: 'Welcome to the Apollo Gears API Service',
+    message: 'Welcome to the HelpTech API Service',
   });
 });
 
