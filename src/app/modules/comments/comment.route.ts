@@ -13,30 +13,32 @@ const router = express.Router();
 // Create a new comment
 router.post(
   '/',
-  auth(USER_ROLE.user),  // Assuming any user can create a comment
+  auth(USER_ROLE.user,USER_ROLE.admin),  
   validateRequest(createCommentValidationSchema),
   CommentController.createComment,
 );
 
+// Get all comments on a specific post 
+router.get(
+  '/:postId',
+  auth(USER_ROLE.admin, USER_ROLE.user),
+  CommentController.getAllCommentsOnSinglePost,
+);
+
+
 // Get all comments
 router.get('/', auth(USER_ROLE.admin), CommentController.getAllComments);
 
-// Get a comment by ID
-router.get(
-  '/:id',
-  auth(USER_ROLE.admin, USER_ROLE.user),
-  CommentController.findCommentById,
-);
 
 // Update a comment by ID
 router.patch(
-  '/:id',
+  '/:commentId',
   auth(USER_ROLE.admin, USER_ROLE.user),
   validateRequest(updateCommentValidationSchema),
   CommentController.updateCommentById,
 );
 
 // Delete a comment by ID
-router.delete('/:id', auth(USER_ROLE.admin), CommentController.deleteCommentById);
+router.delete('/:commentId', auth(USER_ROLE.admin, USER_ROLE.user), CommentController.deleteCommentById);
 
 export const CommentRoutes = router;
