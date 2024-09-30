@@ -3,13 +3,14 @@ import config from '../../config';
 import AppError from '../../errors/AppError';
 
 import bcryptJs from 'bcryptjs';
-import { User } from '../User/user.model';
-import { USER_ROLE } from '../User/user.utils';
+
 import { TLoginUser } from './auth.interface';
 import { createToken, verifyToken } from './auth.utils';
 import { demoProfileUrl } from '../../contants';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { sendEmail } from '../../utils/sendEmail';
+import { USER_ROLE } from '../User/user.utils';
+import { User } from '../User/user.model';
 
 
 const loginUser = async (payload: TLoginUser) => {
@@ -28,7 +29,7 @@ const loginUser = async (payload: TLoginUser) => {
       userId: user._id,
       username: user.username,
       email: user.email,
-      role: user.role,
+      role: "admin",
       profilePhoto: user.profilePhoto
     };
 

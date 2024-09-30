@@ -1,6 +1,4 @@
-/* eslint-disable no-unused-vars */
-/* eslint-disable no-useless-escape */
-// models/User.ts
+
 import mongoose, {  Schema } from 'mongoose';
 import { IUser } from './user.interface';
 import { validateEmail } from './user.utils';
@@ -81,9 +79,5 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
 
 
 
+export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
 
-
-
-
-
-export const User = mongoose.model<IUser>('User', userSchema);
