@@ -3,3 +3,10 @@ export const USER_STATUS = {
     active: "ACTIVE",
     blocked:"BLOCKED"
 }
+
+
+export const USER_ROLE = {
+    user: 'user',
+    admin: 'admin',
+  } as const;
+  

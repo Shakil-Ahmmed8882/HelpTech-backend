@@ -13,4 +13,10 @@ export default {
   jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUND,
   reset_pass_ui_link: process.env.reset_pass_ui_link,
+  store_id: process.env.STORE_ID,
+  store_passwd: process.env.STORE_PASSWD,
+  is_live: process.env.IS_LIVE,
+  server_url: process.env.SERVER_URL,
+  client_url: process.env.CLIENT_URL,
+  
 };
