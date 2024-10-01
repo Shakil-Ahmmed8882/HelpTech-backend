@@ -1,4 +1,4 @@
-import mongoose, { Document, Types } from 'mongoose';
+import  { Document, Types } from 'mongoose';
 
 // Interface for the Post document
 export interface IPost extends Document {
@@ -7,7 +7,7 @@ export interface IPost extends Document {
   tags?: string[];
   category: string;
   author: Types.ObjectId;  
-  comments: Types.ObjectId[]; 
+  comments:number; 
   upvotes: number;
   downvotes: number;
   isPremium: boolean;
