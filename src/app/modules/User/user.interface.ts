@@ -11,9 +11,9 @@ export interface IUser {
   isVerified: boolean;
   status: "ACTIVE" | "BLOCKED" ;
   isPremiumUser: boolean;
-  followers: Types.ObjectId[]; // Array of User IDs
-  following: Types.ObjectId[]; // Array of User IDs
-  posts: Types.ObjectId[]; 
+  followers: number;
+  followings: number;
+  posts: number;
 }
 
 

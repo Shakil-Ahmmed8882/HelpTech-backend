@@ -1,5 +1,4 @@
-
-import mongoose, {  Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { IUser } from './user.interface';
 import { validateEmail } from './user.utils';
 
@@ -43,41 +42,29 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       default: false,
     },
     status: {
-        type: String,
-        enum: ['ACTIVE', 'BLOCKED'],
-        default: 'ACTIVE',
+      type: String,
+      enum: ['ACTIVE', 'BLOCKED'],
+      default: 'ACTIVE',
     },
     isPremiumUser: {
       type: Boolean,
       default: false,
     },
-    followers: [
-      {
-        type: mongoose.Types.ObjectId,
-        ref: 'User',
-        default: [],
-      },
-    ],
-    following: [
-      {
-        type: mongoose.Types.ObjectId,
-        ref: 'User',
-        default: [],
-      },
-    ],
-    posts: [
-      {
-        type: mongoose.Types.ObjectId,
-        ref: 'Post',
-        default: [],
-      },
-    ],
+    followers: {
+      type: Number,
+      default: 0,
+    },
+    followings: {
+      type: Number,
+      default: 0,
+    },
+    posts: {
+      type: Number,
+      default: 0,
+    },
   },
-  { timestamps: true},
+  { timestamps: true },
 );
 
-
-
-
-export const User = mongoose.models.User || mongoose.model<IUser>('User', userSchema);
-
+export const User =
+  mongoose.models.User || mongoose.model<IUser>('User', userSchema);
