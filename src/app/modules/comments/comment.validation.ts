@@ -3,7 +3,6 @@ import { z } from 'zod';
 export const createCommentValidationSchema = z.object({
   body: z.object({
     post: z.string().nonempty('Post ID is required'),
-    user: z.string().nonempty('User ID is required'),
     comment: z.string().nonempty('comment is required'),
   }),
 });

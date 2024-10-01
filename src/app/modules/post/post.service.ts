@@ -5,9 +5,37 @@ import { PostSearchableFields } from './post.constant';
 import { IPost } from './post.interface';
 import { Post } from './post.model';
 import { JwtPayload } from 'jsonwebtoken';
+import mongoose, { Types } from 'mongoose';
+import createAnalyticsRecord from '../../utils/createAnalyticsRecord';
 
-const createPost = async (payload: IPost) => {
-  return await Post.create(payload);
+const createPost = async (userId:string, payload: IPost) => {
+
+  // post and record it as analytics
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    
+    const postResult = await Post.create([payload],{session});
+    
+    if(postResult.length > 0){
+    await createAnalyticsRecord({
+      post: postResult[0]._id.toString(),
+      user:new Types.ObjectId(userId), 
+      actionType: 'post',
+    }, session);
+    }
+    await session.commitTransaction();
+    await session.endSession();
+    return postResult;
+    
+  } catch (error: any) {
+    await session.abortTransaction();
+    await session.endSession();
+    console.error('Transaction aborted:', error.message);
+    throw error;
+  } finally {
+    session.endSession();
+  }
 };
 
 const findPostById = async (postId: string) => {
@@ -15,7 +43,7 @@ const findPostById = async (postId: string) => {
 };
 
 const getAllPosts = async (query: Record<string, unknown>) => {
-  const postQuery = new QueryBuilder(Post.find({isDeleted:false}), query)
+  const postQuery = new QueryBuilder(Post.find({ isDeleted: false }), query)
     .search(PostSearchableFields)
     .filter()
     .sort()
@@ -31,7 +59,10 @@ const getAllPosts = async (query: Record<string, unknown>) => {
 };
 
 const myAllPosts = async (userId: string, query: Record<string, unknown>) => {
-  const postQuery = new QueryBuilder(Post.find({ author: userId, isDeleted:false }), query)
+  const postQuery = new QueryBuilder(
+    Post.find({ author: userId, isDeleted: false }),
+    query,
+  )
     .search(PostSearchableFields)
     .filter()
     .sort()

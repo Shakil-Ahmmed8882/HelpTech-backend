@@ -13,7 +13,7 @@ const router = express.Router();
 // Create a new post
 router.post(
   '/',
-  // auth(USER_ROLE.admin),
+  auth(USER_ROLE.admin, USER_ROLE.user),
   validateRequest(createPostValidationSchema),
   PostController.createPost,
 );

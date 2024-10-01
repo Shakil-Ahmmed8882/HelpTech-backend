@@ -7,12 +7,95 @@ import { Post } from '../post/post.model';
 import mongoose from 'mongoose';
 import { User } from '../User/user.model';
 import QueryBuilder from '../../builder/QueryBuilder';
+import createAnalyticsRecord from '../../utils/createAnalyticsRecord';
 
 // Create or update a vote for a post with transaction
+// const createOrUpdateVote = async (
+//   payload: Pick<IVote, 'voteType' | 'user' | 'post'>,
+// ) => {
+//   const { post:postId, user: userId, voteType } = payload;
+
+//   // Start a session for the transaction
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     // Check if the post exists
+//     const post = await Post.findById(postId).session(session);
+//     if (!post) {
+//       throw new AppError(httpStatus.NOT_FOUND, 'Post not found');
+//     }
+
+//     const user = await User.findById(userId).session(session);
+//     if (!user) {
+//       throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+//     }
+
+//     // Check if the user has already voted on this post
+//     const existingVote = await Vote.findOne({ postId, userId }).session(
+//       session,
+//     );
+
+//     if (existingVote) {
+//       // If the vote type is the same, no need to update
+//       if (existingVote.voteType === voteType) {
+//         throw new AppError(
+//           httpStatus.BAD_REQUEST,
+//           'You have already voted with this type',
+//         );
+//       }
+
+//       // Update the vote type
+//       existingVote.voteType = voteType;
+//       await existingVote.save({ session });
+
+//       // Adjust the post's vote counts
+//       if (voteType === 'upvote') {
+//         post.upvotes += 1;
+//         post.downvotes -= 1; // Remove one downvote if changing to upvote
+//       } else {
+//         post.downvotes += 1;
+//         post.upvotes -= 1; // Remove one upvote if changing to downvote
+//       }
+//     } else {
+//       // Create a new vote
+//       await Vote.create([{ post: postId, user: userId, voteType }], {
+//         session,
+//       });
+
+//       // Update post vote counts
+//       if (voteType === 'upvote') {
+//         post.upvotes += 1;
+//       } else {
+//         post.downvotes += 1;
+//       }
+//     }
+
+//     // Save post changes
+//     await post.save({ session });
+
+//     // Commit the transaction
+//     await session.commitTransaction();
+
+//     return existingVote || { postId, userId, voteType };
+//   } catch (error) {
+//     // If there's an error, abort the transaction
+//     await session.abortTransaction();
+//     throw error;
+//   } finally {
+//     // End the session
+//     session.endSession();
+//   }
+// };
+
+
+
+
+
 const createOrUpdateVote = async (
   payload: Pick<IVote, 'voteType' | 'user' | 'post'>,
 ) => {
-  const { post:postId, user: userId, voteType } = payload;
+  const { post: postId, user: userId, voteType } = payload;
 
   // Start a session for the transaction
   const session = await mongoose.startSession();
@@ -31,9 +114,7 @@ const createOrUpdateVote = async (
     }
 
     // Check if the user has already voted on this post
-    const existingVote = await Vote.findOne({ postId, userId }).session(
-      session,
-    );
+    const existingVote = await Vote.findOne({ post: postId, user: userId }).session(session);
 
     if (existingVote) {
       // If the vote type is the same, no need to update
@@ -50,24 +131,37 @@ const createOrUpdateVote = async (
 
       // Adjust the post's vote counts
       if (voteType === 'upvote') {
-        post.upvotes += 1;
-        post.downvotes -= 1; // Remove one downvote if changing to upvote
+        post.upvotes += 1;  
+        post.downvotes -= 1; 
       } else {
-        post.downvotes += 1;
-        post.upvotes -= 1; // Remove one upvote if changing to downvote
+        post.downvotes += 1; 
+        post.upvotes -= 1;   
       }
+
+      // Create analytics record for updating a vote
+      await createAnalyticsRecord({
+        post: postId,
+        user: userId,
+        actionType: voteType === 'upvote' ? 'upvote' : 'downvote',
+      }, session);
+
     } else {
       // Create a new vote
-      await Vote.create([{ post: postId, user: userId, voteType }], {
-        session,
-      });
+      await Vote.create([{ post: postId, user: userId, voteType }], { session });
 
       // Update post vote counts
       if (voteType === 'upvote') {
-        post.upvotes += 1;
+        post.upvotes += 1; 
       } else {
         post.downvotes += 1;
       }
+
+      // Create analytics record for new vote
+      await createAnalyticsRecord({
+        post: postId,
+        user: userId,
+        actionType: voteType === 'upvote' ? 'upvote' : 'downvote',
+      }, session);
     }
 
     // Save post changes
@@ -86,6 +180,8 @@ const createOrUpdateVote = async (
     session.endSession();
   }
 };
+
+
 
 const getAllVotesOnSinglePost = async (
   postId: string,

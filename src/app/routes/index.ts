@@ -6,6 +6,7 @@ import { CommentRoutes } from '../modules/comments/comment.route';
 import { VoteRoutes } from '../modules/vote/vote.route';
 import { CategoryRoutes } from '../modules/category/category.route';
 import { paymentRoutes } from '../modules/payments/payments.route';
+import { AnalyticRoutes } from '../modules/analytics/analytics.route';
 
 type TModuleRoutes = {
   path: string;
@@ -42,6 +43,10 @@ const moduleRoutes: TModuleRoutes[] = [
   {
     path: '/payments',
     route: paymentRoutes,
+  },
+  {
+    path: '/analytics',
+    route: AnalyticRoutes,
   },
 
   // extends..

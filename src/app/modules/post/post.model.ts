@@ -46,13 +46,11 @@ const postSchema = new Schema<IPost>(
       type: Boolean,
       default: false,
     },
-    comments: [
-      {
-        type: Types.ObjectId,
-        ref: 'Comment',
-        default: [],
-      },
-    ],
+    comments: {
+      type:Number,
+      default: 0
+
+    }
   },
   { timestamps: true },
 );
