@@ -75,9 +75,9 @@ This is the backend for HelpTech, a dynamic full-stack web application designed 
 
 
 ## Post Management
-- `POST /post/create-post` : Create a new post for the user.
+- `POST /post/create-post`: Create a new post for the user.
 - `GET ``/post/`: Get all posts.
-- GET` /``post/my-posts: get individual user all posts ` 
+- GET` /``post/my-posts: get individual users all posts ` 
 - GET` /``post/:id`  get a post by ID.
 - PATCH` /``post/:id`Update a post of the current user.
 - `DELETE /``post/:`Delete a post by the current user. (soft delete, only post publisher || admin can delete
@@ -86,10 +86,10 @@ This is the backend for HelpTech, a dynamic full-stack web application designed 
 
 
 ## Comment Management
-- `POST /users/:id/posts/:postId/comments` : Add a comment to a specific post.
--  `GET /users/:postId/comments` :  Get all comments on a specific post
--  `PUT /users/comments/:commentId` : Edit comment only who published it. ( user ID from token )
--  `DELETE /commments/:id/comments/:commentId` : Delete a comment made by the user.
+- `POST /users/:id/posts/:postId/comments`: Add a comment to a specific post.
+-  `GET /users/:postId/comments`:  Get all comments on a specific post
+-  `PUT /users/comments/:commentId`: Edit comments only for those who published them. ( user ID from token )
+-  `DELETE /commments/:id/comments/:commentId`: Delete a comment made by the user.
 
 
 
@@ -103,7 +103,7 @@ This is the backend for HelpTech, a dynamic full-stack web application designed 
 
 
 ## Category Management
-- `POST /category` : Create a new category ( admin ).
+- `POST /category`: Create a new category ( admin ).
 - `GET ``/category/`: Get all categories (user, admin).
 - GET` /`category`/id: get category by id` 
 - PATCH` /`category`/:id`Update a category.
@@ -113,27 +113,19 @@ This is the backend for HelpTech, a dynamic full-stack web application designed 
 
 
 ## Payments
-- `POST /category` : Create a new payment( admin ).
-- `GET ``/category/`: Get all payments 
-- GET` /`category`/id: get category by id` 
-- DELETE` /`category`/:id`  Delete a payment by ID if it failed
-
-
-
-
-
-
----
-
+- `POST /payments`: Create a new payment upon successful payment
+- `GET ``/payments/`: Get all payments 
+- GET` /`payments`/id: get paymemt by id` 
+- DELETE` /`payments`/:id`  Delete a payment when failed
 
 
 
 
 ## Analytics 
--  `POST /category` : Create a new category ( admin ).
--  `GET ``/category/`: Get all categories (user, admin).
--  GET` /`category`/id: get category by id` 
--  PATCH` /`category`/:id`Update a category.
+-  `POST /analytics` : get analytic matrix ( admin ).
+-  `GET ``/analytics/`: Get all analyticcs (user, admin).
+-  GET` /`analytics`/id: get analytic by id` 
+
 
 
 
@@ -141,11 +133,10 @@ This is the backend for HelpTech, a dynamic full-stack web application designed 
 
 
 ## Follows
--  `POST /category` : Create a new category ( admin ).
--  `GET ``/category/`: Get all categories (user, admin).
--  GET` /`category`/id: get category by id` 
--  PATCH` /`category`/:id`Update a category.
--  DELETE` /`category`/:id`  Delete a category by id 
+-  `POST /follows`: link follow relationship follower & following by reference
+-  `GET ``/follows/:id/following`: Get all followings
+-  `GET ``/follows/:id/followers`: Get all followers
+-  DELETE` /`follows`/:id`  Unfollow a user  
 
 
 
