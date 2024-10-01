@@ -19,10 +19,11 @@ const paymentSuccessHandler = catchAsync(async (req, res) => {
   const transectionId = req.params.transactionID;
   const userId = req.user.userId;
 
-  const result = await paymentServices.paymentSuccess(userId,transectionId, res);
-  if (Object.keys(result).length > 0) {
-    res.send({success:true})
-  }
+
+  
+  
+  await paymentServices.paymentSuccess(userId,transectionId, res);
+  
   
 });
 

@@ -18,5 +18,6 @@ export default {
   is_live: process.env.IS_LIVE,
   server_url: process.env.SERVER_URL,
   client_url: process.env.CLIENT_URL,
+  free_content_access_secret: process.env.FREE_CONTENT_ACCESS_SECRET,
   
 };

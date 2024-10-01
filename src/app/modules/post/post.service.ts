@@ -64,9 +64,13 @@ const findPostById = async (postId: string) => {
 };
 
 const getAllPosts = async (user: IUser, query: Record<string, unknown>) => {
+
+  
+  
   let isPremiumUser = false;
-  // If `userId` is provided (meaning the user is logged in), check their premium status
-  if (!!user) {
+
+  
+  if (user) {
     // If the user exists and is a premium user, set the flag
     if (user && user.isPremiumUser) {
       isPremiumUser = true;
@@ -89,6 +93,9 @@ const getAllPosts = async (user: IUser, query: Record<string, unknown>) => {
   const result = await postQuery.modelQuery;
   const metaData = await postQuery.countTotal();
 
+
+  
+  
   return {
     meta: metaData,
     data: result,

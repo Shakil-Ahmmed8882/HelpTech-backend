@@ -3,6 +3,7 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { PostService } from './post.service'; // Assuming you have a PostService with necessary methods
 import { validateTokenAndFetchUser } from '../../middlewares/auth';
+import config from '../../config';
 
 const createPost = catchAsync(async (req, res) => {
   const userId = req.user.userId;
@@ -30,7 +31,8 @@ const findPostById = catchAsync(async (req, res) => {
 
 const getAllPosts = catchAsync(async (req, res) => {
   const token = req.headers.authorization;
-  const { user } = await validateTokenAndFetchUser(token || 'invalid-token-to-check-if(!token) validation');
+  
+  const { user } = await validateTokenAndFetchUser(token || `${config.free_content_access_secret}`);
   
   
   const result = await PostService.getAllPosts(user, req.query);

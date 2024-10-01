@@ -19,6 +19,7 @@ router.post(
 );
 router.get(
   '/my-posts',
+  auth(USER_ROLE.admin, USER_ROLE.user),
   PostController.getMyPosts,
 );
 
@@ -42,7 +43,6 @@ router.delete('/:id',
 
 router.get(
   '/',
-  auth(USER_ROLE.admin, USER_ROLE.user),
   PostController.getAllPosts,
 );
 export const PostRoutes = router;

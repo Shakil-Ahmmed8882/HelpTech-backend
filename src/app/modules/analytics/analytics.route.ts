@@ -1,7 +1,4 @@
 import { Router } from 'express';
-import auth from '../../middlewares/auth';
-import { USER_ROLE } from '../../contants';
-import { analyticsServices } from './analytics.service';
 import { analyticControllers } from './analytics.controller';
 
 const router = Router();
