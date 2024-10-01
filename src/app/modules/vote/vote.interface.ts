@@ -1,10 +1,7 @@
-import { Types } from "mongoose";
+import { Types, Document } from "mongoose";
 
-// Enum for Vote Types
-export enum VoteType {
-  UPVOTE = 'upvote',
-  DOWNVOTE = 'downvote',
-}
+// Define the Vote Types as String Literals
+export type VoteType = 'upvote' | 'downvote';
 
 // Interface for the Vote Document
 export interface IVote extends Document {

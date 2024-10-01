@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
-import { IVote, VoteType } from './vote.interface';
+import { IVote } from './vote.interface';
 
 const voteSchema = new Schema<IVote>(
   {
@@ -15,7 +15,7 @@ const voteSchema = new Schema<IVote>(
     },
     voteType: {
       type: String,
-      enum: Object.values(VoteType),
+      enum: ["upvote", "downvote"],  
       required: true,
     },
   },

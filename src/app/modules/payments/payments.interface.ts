@@ -1,4 +1,4 @@
-import mongoose, { Document, Types } from 'mongoose';
+import  { Document, Types } from 'mongoose';
 
 // Interface for the Post document
 export interface IPayment extends Document {

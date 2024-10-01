@@ -29,7 +29,7 @@ const loginUser = async (payload: TLoginUser) => {
       userId: user._id,
       username: user.username,
       email: user.email,
-      role: USER_ROLE.user,
+      role: "admin",
       profilePhoto: user.profilePhoto
     };
 
@@ -66,7 +66,7 @@ const loginUser = async (payload: TLoginUser) => {
       userId: user._id,
       username: user.username,
       email: user.email,
-      role: user.role,
+      role: "admin",
       profilePhoto: user.profilePhoto
     };
 

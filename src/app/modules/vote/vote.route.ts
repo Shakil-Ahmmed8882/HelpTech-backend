@@ -3,7 +3,6 @@ import validateRequest from '../../middlewares/validateRequest';
 import { VoteController } from './vote.controller'; // Assuming you have a VoteController
 import {
   createVoteValidationSchema,
-  updateVoteValidationSchema,
 } from './vote.validation';
 import auth from '../../middlewares/auth';
 import { USER_ROLE } from './vote.utils';

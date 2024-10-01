@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { Model, Types } from "mongoose";
+import { Model } from "mongoose";
 
 export interface IUser {
   username: string;
