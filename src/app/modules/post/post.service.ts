@@ -7,27 +7,30 @@ import { Post } from './post.model';
 import { JwtPayload } from 'jsonwebtoken';
 import mongoose, { Types } from 'mongoose';
 import createAnalyticsRecord from '../../utils/createAnalyticsRecord';
+import { User } from '../User/user.model';
+import { IUser } from '../User/user.interface';
 
-const createPost = async (userId:string, payload: IPost) => {
-
+const createPost = async (userId: string, payload: IPost) => {
   // post and record it as analytics
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    
-    const postResult = await Post.create([payload],{session});
-    
-    if(postResult.length > 0){
-    await createAnalyticsRecord({
-      post: postResult[0]._id.toString(),
-      user:new Types.ObjectId(userId), 
-      actionType: 'post',
-    }, session);
+
+    const postResult = await Post.create([payload], { session });
+
+    if (postResult.length > 0) {
+      await createAnalyticsRecord(
+        {
+          post: postResult[0]._id.toString(),
+          user: new Types.ObjectId(userId),
+          actionType: 'post',
+        },
+        session,
+      );
     }
     await session.commitTransaction();
     await session.endSession();
     return postResult;
-    
   } catch (error: any) {
     await session.abortTransaction();
     await session.endSession();
@@ -42,8 +45,30 @@ const findPostById = async (postId: string) => {
   return await Post.findById(postId).populate('author');
 };
 
-const getAllPosts = async (query: Record<string, unknown>) => {
-  const postQuery = new QueryBuilder(Post.find({ isDeleted: false }), query)
+const getAllPosts = async (
+  user: IUser,
+  query: Record<string, unknown>,
+) => {
+
+  
+
+  let isPremiumUser = false;
+  // If `userId` is provided (meaning the user is logged in), check their premium status
+  if (!!user) {
+    // If the user exists and is a premium user, set the flag
+    if (user && user.isPremiumUser) {
+      isPremiumUser = true;
+    }
+  }
+
+  
+  const postQuery = new QueryBuilder(
+    Post.find({
+      isDeleted: false,
+      ...(isPremiumUser ? {} : { isPremium: false }), // show all or only free conttnes
+    }),
+    query,
+  )
     .search(PostSearchableFields)
     .filter()
     .sort()
@@ -52,6 +77,7 @@ const getAllPosts = async (query: Record<string, unknown>) => {
 
   const result = await postQuery.modelQuery;
   const metaData = await postQuery.countTotal();
+
   return {
     meta: metaData,
     data: result,

@@ -19,7 +19,6 @@ router.post(
 );
 router.get(
   '/my-posts',
-  auth(USER_ROLE.admin, USER_ROLE.user),
   PostController.getMyPosts,
 );
 
