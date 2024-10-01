@@ -7,14 +7,21 @@ import { Post } from './post.model';
 import { JwtPayload } from 'jsonwebtoken';
 import mongoose, { Types } from 'mongoose';
 import createAnalyticsRecord from '../../utils/createAnalyticsRecord';
-import { User } from '../User/user.model';
 import { IUser } from '../User/user.interface';
+import { User } from '../User/user.model';
 
 const createPost = async (userId: string, payload: IPost) => {
   // post and record it as analytics
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
+
+    if (userId.toString() !== payload.author.toString()) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        'Please provide author id same as userId',
+      );
+    }
 
     const postResult = await Post.create([payload], { session });
 
@@ -27,6 +34,17 @@ const createPost = async (userId: string, payload: IPost) => {
         },
         session,
       );
+
+      // update user post count
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $inc: { posts: 1 } },
+        { new: true, runValidators: true },
+      ).session(session);
+
+      if (!updatedUser) {
+        throw new AppError(httpStatus.NOT_FOUND, 'User not found');
+      }
     }
     await session.commitTransaction();
     await session.endSession();
@@ -45,13 +63,7 @@ const findPostById = async (postId: string) => {
   return await Post.findById(postId).populate('author');
 };
 
-const getAllPosts = async (
-  user: IUser,
-  query: Record<string, unknown>,
-) => {
-
-  
-
+const getAllPosts = async (user: IUser, query: Record<string, unknown>) => {
   let isPremiumUser = false;
   // If `userId` is provided (meaning the user is logged in), check their premium status
   if (!!user) {
@@ -61,7 +73,6 @@ const getAllPosts = async (
     }
   }
 
-  
   const postQuery = new QueryBuilder(
     Post.find({
       isDeleted: false,
@@ -133,24 +144,59 @@ const updatePostById = async (
   return result;
 };
 
-const deletePostById = async (postId: string, payload: JwtPayload) => {
-  // Find the post by ID
-  const post = await Post.findById(postId);
-  if (!post) {
-    throw new Error('Post not found');
+const deletePostById = async (postId: string, userPayload: JwtPayload) => {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    // business logic ...
+
+    // Find the post by ID
+    const post = await Post.findById(postId).session(session);
+    if (!post) {
+      throw new Error('Post not found');
+    }
+
+    // Check if the user is admin or the author of the post
+    const isAuthorized =
+      userPayload.role === 'admin' ||
+      post.author.toString() === userPayload.userId;
+
+    if (!isAuthorized) {
+      throw new Error('Not authorized to delete this post');
+    }
+
+    // Check if the post is already marked as deleted
+    if (post.isDeleted) {
+      throw new AppError(httpStatus.CONFLICT, 'Post is already deleted');
+    }
+
+    // If authoriz// If authorized, decrease user post count
+    await User.findByIdAndUpdate(
+      userPayload.userId,
+      { $inc: { posts: -1 } },
+      { runValidators: true, new: true },
+    ).session(session);
+
+    // // If authorizd Proceed to delete the post
+    const result = await Post.findByIdAndUpdate(
+      postId,
+      { isDeleted: true },
+      { new: true },
+    ).session(session);
+
+    await session.commitTransaction();
+    await session.endSession();
+
+    return result;
+  } catch (error: any) {
+    await session.abortTransaction();
+    await session.endSession();
+    console.error('Transaction aborted:', error.message);
+    throw error;
+  } finally {
+    session.endSession();
   }
-
-  // Check if the user is admin or the author of the post
-  const isAuthorized =
-    payload.role === 'admin' || post.author.toString() === payload.userId;
-
-  if (!isAuthorized) {
-    throw new Error('Not authorized to delete this post');
-  }
-
-  // If authorized, proceed with the deletion
-  const result = await Post.findByIdAndUpdate(postId, { isDeleted: true });
-  return result;
 };
 
 export const PostService = {
