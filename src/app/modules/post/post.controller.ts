@@ -2,10 +2,10 @@ import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { PostService } from './post.service'; // Assuming you have a PostService with necessary methods
+import { validateTokenAndFetchUser } from '../../middlewares/auth';
 
 const createPost = catchAsync(async (req, res) => {
-  
-  const userId = req.user.userId
+  const userId = req.user.userId;
   const result = await PostService.createPost(userId, req.body);
 
   sendResponse(res, {
@@ -29,30 +29,30 @@ const findPostById = catchAsync(async (req, res) => {
 });
 
 const getAllPosts = catchAsync(async (req, res) => {
-  const result = await PostService.getAllPosts(req.query);
+  const token = req.headers.authorization;
+  const { user } = await validateTokenAndFetchUser(token || 'invalid-token-to-check-if(!token) validation');
+  
+  
+  const result = await PostService.getAllPosts(user, req.query);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'Posts are retrieved successfully',
-    meta: result.meta, 
+    meta: result.meta,
     data: result.data,
   });
 });
 
 const getMyPosts = catchAsync(async (req, res) => {
-  
-  const userId  = req.user.userId
+  const userId = req.user.userId;
   const result = await PostService.myAllPosts(userId, req.query);
-
-
-
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: 'My All Posts are retrieved successfully',
-    meta: result.meta, 
+    meta: result.meta,
     data: result.data,
   });
 });
@@ -61,7 +61,7 @@ const updatePostById = catchAsync(async (req, res) => {
   const { userId } = req.user;
   const postId = req?.params?.id;
 
-  const result = await PostService.updatePostById(userId,postId, req.body);
+  const result = await PostService.updatePostById(userId, postId, req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
