@@ -10,8 +10,8 @@ export const SSLPaymentGateway = async (price: number, userId:string) => {
     total_amount: price,
     currency: 'BDT',
     tran_id: unique_tran_id, // use unique tran_id for each api call
-    success_url: `${config.server_url}/payment/success/${unique_tran_id}/${userId}`,
-    fail_url: `${config.server_url}/payment/fail/${unique_tran_id}/${userId}`,
+    success_url: `${config.server_url}/payments/success/${unique_tran_id}`,
+    fail_url: `${config.server_url}/payments/fail/${unique_tran_id}`,
     cancel_url: 'http://localhost:3030/cancel',
     ipn_url: 'http://localhost:3030/ipn',
     shipping_method: 'Courier',

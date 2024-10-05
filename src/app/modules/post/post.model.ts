@@ -1,4 +1,4 @@
-import mongoose, { Schema} from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 import { IPost } from './post.interface';
 
 const postSchema = new Schema<IPost>(
@@ -7,6 +7,9 @@ const postSchema = new Schema<IPost>(
       type: String,
       required: true,
       index: true,
+    },
+    images: {
+      type: [String]
     },
     content: {
       type: String,
@@ -47,12 +50,12 @@ const postSchema = new Schema<IPost>(
       default: false,
     },
     comments: {
-      type:Number,
-      default: 0
-
-    }
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true },
 );
 
-export const Post =  mongoose.models.Post ||  mongoose.model<IPost>('Post', postSchema);
+export const Post =
+  mongoose.models.Post || mongoose.model<IPost>('Post', postSchema);

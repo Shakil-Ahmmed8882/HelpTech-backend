@@ -45,8 +45,44 @@ const getAnalyticsSummaryMatrix = async () => {
 };
 
 
+import mongoose from 'mongoose';
+
+const getUserActionCounts = async (userId: string) => {
+  try {
+    const results = await Analytics.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(userId), 
+        },
+      },
+      {
+        $group: {
+          _id: '$actionType', 
+          count: { $sum: 1 }, 
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          type: '$_id',  
+          count: 1,      
+        },
+      },
+    ]);
+
+    return results; 
+  } catch (error) {
+    console.error('Error fetching user action counts:', error);
+    throw new Error('Error fetching user action counts');
+  }
+};
+
+
+
+
 // Export the service functions
 export const analyticsServices = {
   getAllAnalytics,
-  getAnalyticsSummaryMatrix
+  getAnalyticsSummaryMatrix,
+  getUserActionCounts
 };

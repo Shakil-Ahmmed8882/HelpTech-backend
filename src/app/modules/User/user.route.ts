@@ -12,7 +12,6 @@ const router = express.Router();
 
 router.post(
   '/',
-  auth(USER_ROLE.admin),
   validateRequest(createUserValidationSchema),
   UserController.createUser,
 );
@@ -25,9 +24,8 @@ router.get(
   UserController.findUserById,
 );
 
-router.patch(
+router.post(
   '/:id',
-  auth(USER_ROLE.admin),
   validateRequest(updateUserValidationSchema),
   UserController.updateUserById,
 );

@@ -9,6 +9,7 @@ import mongoose, { Types } from 'mongoose';
 import createAnalyticsRecord from '../../utils/createAnalyticsRecord';
 import { IUser } from '../User/user.interface';
 import { User } from '../User/user.model';
+import { demoPostImagUrl } from '../../contants';
 
 const createPost = async (userId: string, payload: IPost) => {
   // post and record it as analytics
@@ -23,6 +24,8 @@ const createPost = async (userId: string, payload: IPost) => {
       );
     }
 
+    payload.images = payload.images && payload.images.length > 0 ? payload.images : [demoPostImagUrl];
+    payload.author = new Types.ObjectId(userId)
     const postResult = await Post.create([payload], { session });
 
     if (postResult.length > 0) {
@@ -80,7 +83,7 @@ const getAllPosts = async (user: IUser, query: Record<string, unknown>) => {
   const postQuery = new QueryBuilder(
     Post.find({
       isDeleted: false,
-      ...(isPremiumUser ? {} : { isPremium: false }), // show all or only free conttnes
+      ...(isPremiumUser ? {} : { isPremium: false }), 
     }),
     query,
   )
@@ -90,12 +93,8 @@ const getAllPosts = async (user: IUser, query: Record<string, unknown>) => {
     .paginate()
     .fields();
 
-  const result = await postQuery.modelQuery;
+  const result = await postQuery.modelQuery.populate("author");
   const metaData = await postQuery.countTotal();
-
-
-  
-  
   return {
     meta: metaData,
     data: result,
@@ -126,6 +125,10 @@ const updatePostById = async (
   postId: string,
   payload: Partial<IPost>,
 ) => {
+
+  
+  console.log({payload})
+  console.log('__________________________________________________________________________________________')
   // check editor is the actual author of this post
   const post = await Post.findById(postId);
   if (!post) {
@@ -135,6 +138,7 @@ const updatePostById = async (
     );
   }
 
+
   const isEditorAndAuthorSame = post.author.toString() === userId;
 
   if (!isEditorAndAuthorSame) {
@@ -143,6 +147,8 @@ const updatePostById = async (
       'Opps! you are disallowed to edit this post',
     );
   }
+
+  
 
   const result = await Post.findByIdAndUpdate({ _id: postId }, payload, {
     new: true,

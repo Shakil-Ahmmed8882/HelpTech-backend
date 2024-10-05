@@ -24,14 +24,29 @@ const getAnalyticsSummaryMatrix = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
+    message: 'All user specific analytics matrix retrieved successfully',
+    data: result,
+  });
+});
+
+
+const getUserActionCounts = catchAsync(async (req, res) => {
+  const userId = req.user.userId
+  
+  
+  const result = await analyticsServices.getUserActionCounts(userId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
     message: 'All analytics matrix retrieved successfully',
     data: result,
   });
 });
 
 
-
 export const analyticControllers = {
   getAllAnalytics,
-  getAnalyticsSummaryMatrix
+  getAnalyticsSummaryMatrix,
+  getUserActionCounts
 };

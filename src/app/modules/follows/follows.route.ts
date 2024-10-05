@@ -17,6 +17,14 @@ router.post(
   FollowController.followUser, 
 );
 
+
+
+router.post(
+  '/is-following', 
+  auth(USER_ROLE.admin, USER_ROLE.user),
+  FollowController.isFollowing,  
+);
+
 // Unfollow a user
 router.delete(
   '/:id', // The ID of the user to unfollow
@@ -33,9 +41,10 @@ router.get(
 
 // Get all user followings
 router.get(
-  '/:id/following', 
+  '/:id/followings', 
   auth(USER_ROLE.admin, USER_ROLE.user),
   FollowController.getFollowings, 
 );
+
 
 export const FollowRoutes = router;

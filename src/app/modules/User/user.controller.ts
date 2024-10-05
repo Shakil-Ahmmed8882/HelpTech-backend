@@ -40,6 +40,8 @@ const getAllUsers = catchAsync(async (req, res) => {
 
 const updateUserById = catchAsync(async (req, res) => {
   const { id } = req.params;
+  
+  console.log(req.body)
   const result = await UserService.updateUserById(id, req.body);
 
   sendResponse(res, {

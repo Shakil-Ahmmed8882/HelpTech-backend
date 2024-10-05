@@ -142,9 +142,28 @@ const getFollowers = async (userId: string,query:Record<string,unknown>) => {
     }
 };
 
+
+
+// Check if a user is already following another user
+const isFollowing = async (payload:{follower:string,following:string}) => {
+  // Check if there is an existing follow relationship
+  const existingFollow = await Follow.findOne({
+    follower: payload.follower,
+    following: payload.following,
+  });
+
+  // Return true if the follow relationship exists, otherwise false
+  if (!existingFollow) {
+    return {isFollowing:false};
+  }
+
+  return {isFollowing:true, followId:existingFollow!._id};
+};
+
 export const FollowService = {
   createFollow,
   deleteFollow,
   getFollowings,
   getFollowers,
+  isFollowing
 };
