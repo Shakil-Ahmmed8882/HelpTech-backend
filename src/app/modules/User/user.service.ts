@@ -1,5 +1,6 @@
 import QueryBuilder from '../../builder/QueryBuilder';
 import config from '../../config';
+import { createToken } from '../Auth/auth.utils';
 import { UserSearchableFields } from './user.constant';
 import { IUser } from './user.interface';
 import { User } from './user.model';
@@ -33,11 +34,35 @@ const getAllUsers = async (query: Record<string, unknown>) => {
 };
 
 const updateUserById = async (userId: string, payload: Partial<IUser>) => {
-  const result = await User.findByIdAndUpdate({ _id: userId }, payload, {
+
+  
+  console.log({userId,payload})
+
+
+  const user = await User.findByIdAndUpdate({ _id: userId }, payload, {
     new: true,
     runValidators: true,
   });
-  return result;
+
+
+
+  const jwtPayload = {
+    userId: user._id,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+    profilePhoto: user.profilePhoto
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expires_in as string,
+  );
+
+  return {
+    accessToken,
+  };
 };
 
 const deleteUserById = async (userId: string) => {

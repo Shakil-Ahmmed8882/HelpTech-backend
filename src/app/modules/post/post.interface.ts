@@ -6,6 +6,7 @@ export interface IPost extends Document {
   content: string;
   tags?: string[];
   category: string;
+  images: string[];
   author: Types.ObjectId;  
   comments:number; 
   upvotes: number;

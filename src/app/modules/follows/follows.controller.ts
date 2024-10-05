@@ -21,6 +21,7 @@ const unfollowUser = catchAsync(async (req, res) => {
   const { id } = req.params; 
   await FollowService.deleteFollow(id);
 
+  
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -45,7 +46,7 @@ const getFollowings = catchAsync(async (req, res) => {
 
 // Get all followers of a specific user
 const getFollowers = catchAsync(async (req, res) => {
-  const  userId = req.params.id; // ID of the user whose followers we want to retrieve
+  const  userId = req.params.id; 
   const result = await FollowService.getFollowers(userId,req.query);
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -56,9 +57,25 @@ const getFollowers = catchAsync(async (req, res) => {
   });
 });
 
+
+
+// Check if a user is following another user
+const isFollowing = catchAsync(async (req, res) => {
+  
+  const result = await FollowService.isFollowing(req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: `User is ${result.isFollowing ? '' : 'not '}following the target user`,
+    data: result
+  });
+});
+
 export const FollowController = {
   followUser,
   unfollowUser,
   getFollowings,
   getFollowers,
+  isFollowing
 };

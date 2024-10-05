@@ -71,7 +71,7 @@ const paymentSuccess = async (
     session.endSession();
 
     // Redirect to the success page
-    res.send({notice:"payment recored"}).redirect(`${config.client_url}/payment/success/${tranId}`);
+    res.send({notice:"payment recored"}).redirect(`${config.client_url}/pricing/payment-success/${tranId}`);
 
     return result;
   } catch (error: any) {
@@ -100,7 +100,7 @@ const paymentFail = async (userId: string, tranId: string, res: Response) => {
     // Commit the transaction
     await session.commitTransaction();
     session.endSession();
-    res.send({notice:"payment record is cleaned"}).redirect(`${config.client_url}/payment/fail/${tranId}`);
+    res.send({notice:"payment record is cleaned"}).redirect(`${config.client_url}/pricing/payment-fail/${tranId}`);
   } catch (error: any) {
     // Rollback the transaction if any error occurs
     await session.abortTransaction();
