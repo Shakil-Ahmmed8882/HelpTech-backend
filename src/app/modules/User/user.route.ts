@@ -24,7 +24,7 @@ router.get(
   UserController.findUserById,
 );
 
-router.post(
+router.put(
   '/:id',
   validateRequest(updateUserValidationSchema),
   UserController.updateUserById,

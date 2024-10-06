@@ -18,7 +18,7 @@ const router = Router();
 
 const moduleRoutes: TModuleRoutes[] = [
   {
-    path: '/user',
+    path: '/users',
     route: UserRoutes,
   },
   {
