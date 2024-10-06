@@ -20,7 +20,7 @@ router.get('/', auth(USER_ROLE.admin), UserController.getAllUsers);
 
 router.get(
   '/:id',
-  auth(USER_ROLE.admin, USER_ROLE.driver, USER_ROLE.user),
+  auth(USER_ROLE.admin, USER_ROLE.user),
   UserController.findUserById,
 );
 

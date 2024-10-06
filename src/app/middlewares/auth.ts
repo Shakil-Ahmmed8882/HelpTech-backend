@@ -19,7 +19,9 @@ const auth = (...requiredRoles: (keyof typeof USER_ROLE)[]) => {
     ) {
       throw new AppError(httpStatus.UNAUTHORIZED, 'You are not authorized!');
     }
-
+    
+    
+    
     // Attach the user and role to the request object for further use
     req.user = {
       ...decoded,

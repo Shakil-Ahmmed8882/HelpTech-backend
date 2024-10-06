@@ -2,7 +2,7 @@ import { Types } from 'mongoose';
 import SSLCommerzPayment from 'sslcommerz-lts';
 import config from '../../config';
 
-export const SSLPaymentGateway = async (price: number, userId:string) => {
+export const SSLPaymentGateway = async (price: number, paymentId:string) => {
   
   const unique_tran_id = new Types.ObjectId().toString();
 
@@ -10,8 +10,8 @@ export const SSLPaymentGateway = async (price: number, userId:string) => {
     total_amount: price,
     currency: 'BDT',
     tran_id: unique_tran_id, // use unique tran_id for each api call
-    success_url: `${config.server_url}/payments/success/${unique_tran_id}`,
-    fail_url: `${config.server_url}/payments/fail/${unique_tran_id}`,
+    success_url: `${config.server_url}/payments/success/${unique_tran_id}/${paymentId}`,
+    fail_url: `${config.server_url}/payments/fail/${unique_tran_id}/${paymentId}`,
     cancel_url: 'http://localhost:3030/cancel',
     ipn_url: 'http://localhost:3030/ipn',
     shipping_method: 'Courier',

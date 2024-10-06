@@ -14,13 +14,13 @@ router.post(
   paymentControllers.SSLPaymentHandler,
 );
 router.post(
-  '/success/:transactionID',
-  auth(USER_ROLE.user),
+  '/success/:transactionID/:paymentId',
+  // auth(USER_ROLE.user),
   paymentControllers.paymentSuccessHandler,
 );
 router.post(
-  '/fail/:transactionID/',
-  auth(USER_ROLE.user),
+  '/fail/:transactionID/:paymentId',
+  // auth(USER_ROLE.user),
   paymentControllers.paymentFailHandler,
 );
 

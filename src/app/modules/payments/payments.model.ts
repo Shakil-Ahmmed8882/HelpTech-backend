@@ -4,7 +4,7 @@ import { IPayment } from './payments.interface';
 const postSchema = new Schema<IPayment>(
   {
     user: {
-      type: Schema.Types.ObjectId,
+      type: String,
       ref: 'User',
       required: true,
       index: true,
