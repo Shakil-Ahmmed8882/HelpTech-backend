@@ -52,3 +52,17 @@ export const SSLPaymentGateway = async (price: number, paymentId:string) => {
 
   return { url, tranId: unique_tran_id };
 };
+
+
+
+export const filterPaymentsBySearchTerm = (results:any, searchTerm:any) => {
+  // Make search case-insensitive
+  const lowerCaseSearchTerm = searchTerm.toLowerCase();
+
+  // Filter the results based on the search term
+  return results.filter((payment:any) => {
+      const username = payment.user?.username || ''; // Safely access nested property without toLowerCase
+      const email = payment.user?.email || '';
+      return username.toLowerCase().includes(lowerCaseSearchTerm) || email.toLowerCase().includes(lowerCaseSearchTerm);
+  });
+};

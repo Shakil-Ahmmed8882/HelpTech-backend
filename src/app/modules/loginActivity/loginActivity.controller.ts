@@ -18,6 +18,10 @@ const handleCreateLoginHistory = catchAsync(async (req, res) => {
 
 
 const handleGetAllLoginHistories = catchAsync(async (req, res) => {
+
+
+  
+  
   const result = await LoginActivityService.getAllLoginHistories(req.query);
 
   sendResponse(res, {

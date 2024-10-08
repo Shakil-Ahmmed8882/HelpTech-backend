@@ -19,7 +19,7 @@ import { IAnalytics } from '../modules/analytics/analytics.interface';
     // Save the analytics record to the database
     await Analytics.create([analyticsData], { session });
 
-    console.log('Analytics record created successfully:', analyticsData);
+    
   } catch (error: any) {
     console.error('Error creating analytics record:', error.message);
     throw error;

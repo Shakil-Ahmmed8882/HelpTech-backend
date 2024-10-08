@@ -17,6 +17,10 @@ const loginHistorySchema = new mongoose.Schema<ILoginHitory>(
       type: String,
       required: true,
     },
+    actionType:{
+      type: String,
+      required: true,
+    },
     ip: {
       type: String,
       required: true,

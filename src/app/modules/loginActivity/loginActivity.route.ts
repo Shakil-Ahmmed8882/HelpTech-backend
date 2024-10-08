@@ -3,6 +3,7 @@ import validateRequest from '../../middlewares/validateRequest';
 import { LoginActivityController } from './loginActivity.controller';  
 import auth from '../../middlewares/auth';
 import { USER_ROLE } from '../../contants';
+import { createLoginHistorySchema } from './loginActivity.validation';
 
 
 const router = express.Router();
@@ -10,6 +11,7 @@ const router = express.Router();
 // Create a new login activity
 router.post(
   '/',
+  validateRequest(createLoginHistorySchema),
   auth(USER_ROLE.user, USER_ROLE.admin),
   LoginActivityController.handleCreateLoginHistory,  
 );
