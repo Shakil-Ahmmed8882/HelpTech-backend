@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { SSLPaymentGateway } from './payments.utils';
+import { filterPaymentsBySearchTerm, SSLPaymentGateway } from './payments.utils';
 import { Payment } from './payments.model';
 import config from '../../config';
 import QueryBuilder from '../../builder/QueryBuilder';
@@ -144,9 +144,12 @@ const paymentFail = async (
   }
 };
 
-const getAllPayments = async (query: Record<string, unknown>) => {
+const getAllPayments = async ( query: Record<string, unknown>) => {
+
+  
+  
   const paymentQuery = new QueryBuilder(Payment.find(), query)
-    .search(['user.name'])
+    // .search(['user.username', 'user.email'])
     .filter()
     .sort()
     .paginate()
@@ -154,10 +157,41 @@ const getAllPayments = async (query: Record<string, unknown>) => {
 
   const result = await paymentQuery.modelQuery.populate('user');
   const metaData = await paymentQuery.countTotal();
+ 
+let filteredResults = result;
+if (query?.searchTerm) {
+    filteredResults = filterPaymentsBySearchTerm(result, query.searchTerm);
+}
+
   return {
     meta: metaData,
     data: result,
   };
+};
+
+const getAllPaymentsOfSingleUser = async (userId:string, query: Record<string, unknown>) => {
+
+  // Fetch payments while populating the user
+  const paymentQuery = new QueryBuilder(Payment.find({ user: userId.toString() }), query)
+  .filter()
+  .sort()
+  .paginate()
+  .fields();
+
+// Populate user in the payments
+const result = await paymentQuery.modelQuery.populate('user');
+
+let filteredResults = result;
+if (query?.searchTerm) {
+    filteredResults = filterPaymentsBySearchTerm(result, query.searchTerm);
+}
+
+// If no search term, return all results
+const metaData = await paymentQuery.countTotal();
+return {
+  meta: metaData,
+  data: result,
+};
 };
 
 export const paymentServices = {
@@ -165,4 +199,5 @@ export const paymentServices = {
   paymentFail,
   SSLPayment,
   getAllPayments,
+  getAllPaymentsOfSingleUser
 };

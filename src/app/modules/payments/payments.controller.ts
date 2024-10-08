@@ -40,9 +40,23 @@ const getAllPayments = catchAsync(async (req, res) => {
   });
 });
 
+const getAllPaymentsOfSingleUser = catchAsync(async (req, res) => {
+  const userId = req.user.userId
+  const result = await paymentServices.getAllPaymentsOfSingleUser(userId,req.query);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'All payments of single  user are retrieved successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 export const paymentControllers = {
   SSLPaymentHandler,
   paymentSuccessHandler,
   paymentFailHandler,
   getAllPayments,
+  getAllPaymentsOfSingleUser
 };

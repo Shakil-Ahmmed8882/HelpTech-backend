@@ -1,13 +1,12 @@
 import mongoose from 'mongoose';
 import { LoginHistory } from './loginActivity.model';
-import { ILoginHitory } from './loginActivity.interface';
+
 import { User } from '../User/user.model';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
 import QueryBuilder from '../../builder/QueryBuilder';
 import UAParser from 'ua-parser-js';
 import { Request } from 'express';
-import { IUser } from '../User/user.interface';
 import { JwtPayload } from 'jsonwebtoken';
 
 const uaParser = new UAParser();
@@ -48,6 +47,7 @@ const createLoginHistory = async (
     const loginActivity = await LoginHistory.create(
       [
         {
+          ...req.body,
           user: foundUser?._id,
           name:foundUser?.username,
           email:foundUser?.email,

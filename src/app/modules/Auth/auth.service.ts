@@ -11,6 +11,9 @@ import jwt, { JwtPayload } from 'jsonwebtoken';
 import { sendEmail } from '../../utils/sendEmail';
 import { USER_ROLE } from '../User/user.utils';
 import { User } from '../User/user.model';
+import mongoose from 'mongoose';
+import { LoginActivityService } from '../loginActivity/loginActivity.service';
+import { Request } from 'express';
 
 
 const loginUser = async (payload: TLoginUser) => {
@@ -127,56 +130,79 @@ const refreshToken = async (token: string) => {
 };
 
 const registerUser = async (userData: TLoginUser) => {
-  // when select manual signup there must be passoword
-  const existedUser = await User.findOne({ email: userData.email });
 
-  if (existedUser) {
-    throw new Error("User already exist using this same email.")
-  }
-    if (userData.password) {
-      // if manual sign up there is password & hash it
-      userData.password = await bcryptJs.hash(
-        userData.password,
-        Number(config.bcrypt_salt_rounds),
-      );
-    }
 
-    // if social sign up - create user without password
+// post and record it as analytics
+const session = await mongoose.startSession();
+try {
+  session.startTransaction();
 
-    const createdUser = await User.create({
+
+
+  
+   // when select manual signup there must be passoword
+   const existedUser = await User.findOne({ email: userData.email });
+
+   if (existedUser) {
+     throw new Error("User already exist using this same email.")
+   }
+     if (userData.password) {
+       // if manual sign up there is password & hash it
+       userData.password = await bcryptJs.hash(
+         userData.password,
+         Number(config.bcrypt_salt_rounds),
+       );
+     }
+ 
+     // if social sign up - create user without password
+ 
+     const DBcreatedUser = await User.create([{
       ...userData,
       profilePhoto: userData.profilePhoto || demoProfileUrl,
       role: USER_ROLE.user,
-    });
+    }], { session });
 
-    if (createdUser?._id) {
+    const createdUser = DBcreatedUser[0]
+     if (createdUser?._id) {
 
-      const jwtPayload = {
-        userId: createdUser._id,
-        username: createdUser.username,
-        email: createdUser.email,
-        role: createdUser.role,
-        profilePhoto: createdUser.profilePhoto,
-        isPremiumUser:createdUser.isPremiumUser,
-      };
+      
+       
+       const jwtPayload = {
+         userId: createdUser._id,
+         username: createdUser.username,
+         email: createdUser.email,
+         role: createdUser.role,
+         profilePhoto: createdUser.profilePhoto,
+         isPremiumUser:createdUser.isPremiumUser,
+       };
+ 
+       const accessToken = createToken(
+         jwtPayload,
+         config.jwt_access_secret as string,
+         config.jwt_access_expires_in as string,
+       );
+ 
+       const refreshToken = createToken(
+         jwtPayload,
+         config.jwt_refresh_secret as string,
+         config.jwt_refresh_expires_in as string,
+       );
+ 
+       return {
+         accessToken,
+         refreshToken,
+       };
+     }
+  
+} catch (error: any) {
+  await session.abortTransaction();
+  await session.endSession();
+  console.error('Transaction aborted:', error.message);
+  throw error;
+} finally {
+  session.endSession();
+}
 
-      const accessToken = createToken(
-        jwtPayload,
-        config.jwt_access_secret as string,
-        config.jwt_access_expires_in as string,
-      );
-
-      const refreshToken = createToken(
-        jwtPayload,
-        config.jwt_refresh_secret as string,
-        config.jwt_refresh_expires_in as string,
-      );
-
-      return {
-        accessToken,
-        refreshToken,
-      };
-    }
 };
 
 const createUser = async (userData: TLoginUser) => {

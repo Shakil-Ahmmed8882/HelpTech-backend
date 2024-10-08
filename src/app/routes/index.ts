@@ -55,7 +55,7 @@ const moduleRoutes: TModuleRoutes[] = [
     route: FollowRoutes,
   },
   {
-    path: '/login-histories',
+    path: '/login/logout-histories',
     route: LoginActivityRoutes,
   },
 

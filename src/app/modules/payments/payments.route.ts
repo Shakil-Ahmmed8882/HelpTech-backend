@@ -15,8 +15,8 @@ router.post(
 );
 router.post(
   '/success/:transactionID/:paymentId',
-  // auth(USER_ROLE.user),
   paymentControllers.paymentSuccessHandler,
+  // auth(USER_ROLE.user),
 );
 router.post(
   '/fail/:transactionID/:paymentId',
@@ -28,6 +28,11 @@ router.get(
   '/',
   auth(USER_ROLE.admin),
   paymentControllers.getAllPayments,
+);
+router.get(
+  '/single-user',
+  auth(USER_ROLE.user),
+  paymentControllers.getAllPaymentsOfSingleUser,
 );
 
 
