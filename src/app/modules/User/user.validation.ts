@@ -18,6 +18,7 @@ export const updateUserValidationSchema = z.object({
     isVerified: z.boolean().optional(),
     profilePhoto: z.string().optional(),
     role: z.enum(['admin', 'user']).optional(),
+    status: z.enum(['ACTIVE', 'BLOCKED']).optional(),
     img: z.string().optional(), 
   }),
 });

@@ -35,9 +35,6 @@ const getAllUsers = async (query: Record<string, unknown>) => {
 
 const updateUserById = async (userId: string, payload: Partial<IUser>) => {
 
-  
-  console.log({userId,payload})
-
 
   const user = await User.findByIdAndUpdate({ _id: userId }, payload, {
     new: true,

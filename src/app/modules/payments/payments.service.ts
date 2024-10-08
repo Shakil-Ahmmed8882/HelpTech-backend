@@ -1,4 +1,3 @@
-
 import { Response } from 'express';
 import { SSLPaymentGateway } from './payments.utils';
 import { Payment } from './payments.model';
@@ -8,18 +7,13 @@ import { User } from '../User/user.model';
 import mongoose from 'mongoose';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
+import { createToken } from '../Auth/auth.utils';
 
 const SSLPayment = async (
   payload: { postId: string; userId: string; amount: number },
   res: Response,
 ) => {
   try {
-    // Update the document and return the updated document
-    const urlAndTransactioId = await SSLPaymentGateway(
-      payload.amount,
-      payload.userId,
-    );
-
     const paymentData = {
       user: payload.userId,
       transactionID: '',
@@ -27,7 +21,13 @@ const SSLPayment = async (
     };
 
     // // send this id from front end
-    await Payment.create(paymentData);
+    const result = await Payment.create(paymentData);
+
+    // Update the document and return the updated document
+    const urlAndTransactioId = await SSLPaymentGateway(
+      payload.amount,
+      result?._id,
+    );
 
     res.send(urlAndTransactioId);
   } catch (error: any) {
@@ -38,69 +38,101 @@ const SSLPayment = async (
 };
 
 const paymentSuccess = async (
-  userId: string,
+  paymentId: string,
   tranId: string,
   res: Response,
 ) => {
   const session = await mongoose.startSession();
 
   try {
-    // Ensure tranId is provided and is in the correct format
+    session.startTransaction();
     if (!tranId) {
       throw new Error('Transaction ID is required');
     }
 
-    session.startTransaction();
+    if (!paymentId) {
+      throw new Error('payment Id is required');
+    }
 
-    // Update the user's premium status
-    await User.findByIdAndUpdate(userId, { isPremiumUser: true }, { session });
-
-    // Update the payment record with the transaction ID
-    const result = await Payment.findOneAndUpdate(
-      { user: userId },
+    const payment = await Payment.findByIdAndUpdate(
+      paymentId,
       { transactionID: tranId },
       { new: true, runValidators: true, session },
     );
 
-    // Ensure that a payment record was actually updated
-    if (!result) {
+    if (!payment){
       throw new AppError(httpStatus.NOT_FOUND, 'Payment record not found');
     }
-    // Commit the transaction
+
+    const user = await User.findByIdAndUpdate(
+      payment.user,                    
+      { isPremiumUser: true },          
+      // Return the updated document and include the session for transaction
+      { new: true, session }            
+    );
+
+
+    if (!user) {
+      throw new AppError(404,'User not found'); 
+    }
+    
+
+    
+    const jwtPayload = {
+      userId: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      profilePhoto: user.profilePhoto,
+      isPremiumUser:user.isPremiumUser,
+    };
+  
+    const accessToken = createToken(
+      jwtPayload,
+      config.jwt_access_secret as string,
+      config.jwt_access_expires_in as string,
+    );
+  
+
+
     await session.commitTransaction();
     session.endSession();
-
-    // Redirect to the success page
-    res.send({notice:"payment recored"}).redirect(`${config.client_url}/pricing/payment-success/${tranId}`);
-
-    return result;
+    res.redirect(`${config.client_url}/pricing/payment-success/${tranId}?token=${accessToken}`);
   } catch (error: any) {
-    // Rollback the transaction if any error occurs
     await session.abortTransaction();
     session.endSession();
 
-    // Handle errors
     console.error('Error processing payment and updating user:', error.message);
     throw error;
   }
 };
 
-const paymentFail = async (userId: string, tranId: string, res: Response) => {
+const paymentFail = async (
+  paymentId: string,
+  tranId: string,
+  res: Response,
+) => {
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
 
-    // if payment is failed then delete the created booking
-    await User.findByIdAndUpdate(userId, { isPremiumUser: false }).session(
-      session,
-    );
-    await Payment.findOneAndDelete({ user: userId }).session(session);
+    if (!tranId) {
+      throw new Error('Transaction ID is required');
+    }
+
+    if (!paymentId) {
+      throw new Error('payment Id is required');
+    }
+
+    const payment = await Payment.findByIdAndDelete(paymentId, {
+      new: true,
+    }).session(session);
 
     // Commit the transaction
     await session.commitTransaction();
     session.endSession();
-    res.send({notice:"payment record is cleaned"}).redirect(`${config.client_url}/pricing/payment-fail/${tranId}`);
+    res.redirect(`${config.client_url}/pricing/payment-fail/${tranId}`);
   } catch (error: any) {
     // Rollback the transaction if any error occurs
     await session.abortTransaction();

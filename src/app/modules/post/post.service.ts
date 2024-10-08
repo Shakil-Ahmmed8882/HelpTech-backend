@@ -79,6 +79,7 @@ const getAllPosts = async (user: IUser, query: Record<string, unknown>) => {
       isPremiumUser = true;
     }
   }
+  
 
   const postQuery = new QueryBuilder(
     Post.find({
@@ -127,9 +128,11 @@ const updatePostById = async (
 ) => {
 
   
-  console.log({payload})
-  console.log('__________________________________________________________________________________________')
+  
+  
   // check editor is the actual author of this post
+  
+  
   const post = await Post.findById(postId);
   if (!post) {
     throw new AppError(

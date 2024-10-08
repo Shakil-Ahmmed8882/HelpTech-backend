@@ -10,17 +10,17 @@ const router = Router();
 router.post(
   '/pay',
   validateRequest(pamentValidations.createPaymentSchema),
-  auth(USER_ROLE.user),
+  auth(USER_ROLE.user,USER_ROLE.admin),
   paymentControllers.SSLPaymentHandler,
 );
 router.post(
-  '/success/:transactionID',
-  auth(USER_ROLE.user),
+  '/success/:transactionID/:paymentId',
+  // auth(USER_ROLE.user),
   paymentControllers.paymentSuccessHandler,
 );
 router.post(
-  '/fail/:transactionID/',
-  auth(USER_ROLE.user),
+  '/fail/:transactionID/:paymentId',
+  // auth(USER_ROLE.user),
   paymentControllers.paymentFailHandler,
 );
 
