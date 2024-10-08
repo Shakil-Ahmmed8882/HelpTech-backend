@@ -8,6 +8,7 @@ export const createPostValidationSchema = z.object({
     images: z.array(z.string()).nonempty("tags are required"),
     category: z.string().min(1, 'Category is required'),
     author: z.string().nonempty("author id required"),
+    isPremium: z.boolean().optional()
   }),
 });
 
@@ -19,6 +20,7 @@ export const updatePostValidationSchema = z.object({
     images: z.array(z.string()).optional(),
     category: z.string().optional(),
     author: z.string().optional(),
+    isPremium: z.boolean().optional()
   }),
 });
 

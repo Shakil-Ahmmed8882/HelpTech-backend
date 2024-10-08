@@ -10,7 +10,7 @@ const router = Router();
 router.post(
   '/pay',
   validateRequest(pamentValidations.createPaymentSchema),
-  auth(USER_ROLE.user),
+  auth(USER_ROLE.user,USER_ROLE.admin),
   paymentControllers.SSLPaymentHandler,
 );
 router.post(

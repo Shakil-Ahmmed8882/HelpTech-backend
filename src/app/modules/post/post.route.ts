@@ -17,6 +17,11 @@ router.post(
   validateRequest(createPostValidationSchema),
   PostController.createPost,
 );
+
+router.get(
+  '/',
+  PostController.getAllPosts,
+);
 router.get(
   '/my-posts',
   auth(USER_ROLE.admin, USER_ROLE.user),
@@ -41,8 +46,4 @@ router.delete('/:id',
   PostController.deletePostById
 );
 
-router.get(
-  '/',
-  PostController.getAllPosts,
-);
 export const PostRoutes = router;

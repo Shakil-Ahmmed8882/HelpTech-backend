@@ -18,6 +18,7 @@ const findUserById = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await UserService.findUserById(id);
 
+
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
@@ -51,6 +52,7 @@ const updateUserById = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 
 const deleteUserById = catchAsync(async (req, res) => {
   const { id } = req.params;

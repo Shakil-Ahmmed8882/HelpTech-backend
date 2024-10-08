@@ -7,6 +7,7 @@ import { User } from '../User/user.model';
 import mongoose from 'mongoose';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
+import { createToken } from '../Auth/auth.utils';
 
 const SSLPayment = async (
   payload: { postId: string; userId: string; amount: number },
@@ -59,17 +60,44 @@ const paymentSuccess = async (
       { new: true, runValidators: true, session },
     );
 
-    if (!payment)
+    if (!payment){
       throw new AppError(httpStatus.NOT_FOUND, 'Payment record not found');
+    }
 
-    await User.findByIdAndUpdate(
-      payment.user,
-      { isPremiumUser: true },
-      { session },
+    const user = await User.findByIdAndUpdate(
+      payment.user,                    
+      { isPremiumUser: true },          
+      // Return the updated document and include the session for transaction
+      { new: true, session }            
     );
+
+
+    if (!user) {
+      throw new AppError(404,'User not found'); 
+    }
+    
+
+    
+    const jwtPayload = {
+      userId: user._id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      profilePhoto: user.profilePhoto,
+      isPremiumUser:user.isPremiumUser,
+    };
+  
+    const accessToken = createToken(
+      jwtPayload,
+      config.jwt_access_secret as string,
+      config.jwt_access_expires_in as string,
+    );
+  
+
+
     await session.commitTransaction();
     session.endSession();
-    res.redirect(`${config.client_url}/pricing/payment-success/${tranId}`);
+    res.redirect(`${config.client_url}/pricing/payment-success/${tranId}?token=${accessToken}`);
   } catch (error: any) {
     await session.abortTransaction();
     session.endSession();

@@ -8,6 +8,7 @@ import { CategoryRoutes } from '../modules/category/category.route';
 import { paymentRoutes } from '../modules/payments/payments.route';
 import { AnalyticRoutes } from '../modules/analytics/analytics.route';
 import { FollowRoutes } from '../modules/follows/follows.route';
+import { LoginActivityRoutes } from '../modules/loginActivity/loginActivity.route';
 
 type TModuleRoutes = {
   path: string;
@@ -52,6 +53,10 @@ const moduleRoutes: TModuleRoutes[] = [
   {
     path: '/follows',
     route: FollowRoutes,
+  },
+  {
+    path: '/login-histories',
+    route: LoginActivityRoutes,
   },
 
   // extends..

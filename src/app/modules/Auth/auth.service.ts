@@ -17,6 +17,7 @@ const loginUser = async (payload: TLoginUser) => {
   // checking if the user is exist
   const user = await User.findOne({ email: payload.email });
 
+
   if (!user) {
 
     const userData = {
@@ -30,7 +31,8 @@ const loginUser = async (payload: TLoginUser) => {
       username: user.username,
       email: user.email,
       role: user.role,
-      profilePhoto: user.profilePhoto
+      profilePhoto: user.profilePhoto,
+      isPremiumUser:user.isPremiumUser,
     };
 
     const accessToken = createToken(
@@ -67,7 +69,8 @@ const loginUser = async (payload: TLoginUser) => {
       username: user.username,
       email: user.email,
       role: user.role,
-      profilePhoto: user.profilePhoto
+      profilePhoto: user.profilePhoto,
+      isPremiumUser:user.isPremiumUser,
     };
 
     const accessToken = createToken(
@@ -108,7 +111,8 @@ const refreshToken = async (token: string) => {
     username: user.username,
     email: user.email,
     role: user.role,
-    profilePhoto: user.profilePhoto
+    profilePhoto: user.profilePhoto,
+    isPremiumUser:user.isPremiumUser,
   };
 
   const accessToken = createToken(
@@ -152,7 +156,8 @@ const registerUser = async (userData: TLoginUser) => {
         username: createdUser.username,
         email: createdUser.email,
         role: createdUser.role,
-        profilePhoto: createdUser.profilePhoto
+        profilePhoto: createdUser.profilePhoto,
+        isPremiumUser:createdUser.isPremiumUser,
       };
 
       const accessToken = createToken(
@@ -215,7 +220,8 @@ const forgetPassword = async (userId: string) => {
     username: user.username,
     email: user.email,
     role: user.role,
-    profilePhoto: user.profilePhoto
+    profilePhoto: user.profilePhoto,
+    isPremiumUser:user.isPremiumUser,
   };
 
   const resetToken = createToken(jwtPayload,config.jwt_access_secret as string,'10m');

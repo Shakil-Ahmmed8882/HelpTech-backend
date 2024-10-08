@@ -11,7 +11,7 @@ const auth = (...requiredRoles: (keyof typeof USER_ROLE)[]) => {
     const token = req.headers.authorization;
 
     const { decoded, user } = await validateTokenAndFetchUser(token!);
-
+    
     // Check if role matches required roles
     if (
       requiredRoles.length &&
@@ -28,7 +28,8 @@ const auth = (...requiredRoles: (keyof typeof USER_ROLE)[]) => {
       role: decoded.role,
       isPremiumUser: user.isPremiumUser,
     };
-
+    
+    
     next();
   });
 };
