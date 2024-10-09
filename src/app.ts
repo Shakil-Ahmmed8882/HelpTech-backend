@@ -13,7 +13,7 @@ const app: Application = express();
 //parsers
 app.use(express.json());
 
-app.use(cors({ origin: ['http://localhost:3000'] }));
+app.use(cors({ origin: ['http://localhost:3000','https://help-tech-client.vercel.app'] }));
 app.use(cookieParser())
 // application routes
 app.use('/api/v1', router);
