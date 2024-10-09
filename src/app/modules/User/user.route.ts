@@ -16,7 +16,7 @@ router.post(
   UserController.createUser,
 );
 
-router.get('/', auth(USER_ROLE.admin), UserController.getAllUsers);
+router.get('/', auth(USER_ROLE.admin, USER_ROLE.user), UserController.getAllUsers);
 
 router.get(
   '/:id',
